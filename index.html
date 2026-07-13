@@ -194,9 +194,9 @@ Released under the MIT license: http://jsbin.mit-license.org
   let geoid = 0;
     // ═══════════════ MQTTGO 伺服器與 Topic 設定 ═══════════════
     const host = 'wss://mqttgo.vip:8084/mqtt'; 
-    const myTopic = '/user/ky23205238/RTK/KY002/cmd'; // 網頁發佈(傳送)給 ESP32 的主題
-    const reportTopic1 = '/user/ky23205238/RTK/KY002/nmea'; // 網頁訂閱(接收) ESP32 狀態的主題
-    const reportTopic2 = '/user/ky23205238/RTK/KY002/log'; // 網頁訂閱(接收) ESP32 狀態的主題
+    const myTopic = '/user/ky23205238/RTK/KY001/cmd'; // 網頁發佈(傳送)給 ESP32 的主題
+    const reportTopic1 = '/user/ky23205238/RTK/KY001/nmea'; // 網頁訂閱(接收) ESP32 狀態的主題
+    const reportTopic2 = '/user/ky23205238/RTK/KY001/log'; // 網頁訂閱(接收) ESP32 狀態的主題
 
     // MQTT 連線參數設定
     const options = {
