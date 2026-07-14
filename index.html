@@ -1,6 +1,4 @@
 
-
-
 <!DOCTYPE html>
 <!--
 Created using JS Bin
@@ -51,10 +49,7 @@ Released under the MIT license: http://jsbin.mit-license.org
         .val { width: 100%; font-weight: bold; color: blue; font-size: 16px; padding: 4px 0; }
       
         /* 針對您 class="group" 裡面的 table 按鈕進行設定 */
-        .group table button {
-          width: 100%;             /* 強迫按鈕填滿它那一格 td 的 30% 寬度 */
-          box-sizing: border-box;  /* 邊框和內距不額外撐大按鈕 */
-          white-space: nowrap;     /* 強迫文字絕對不換行，解決 3 個字變形的問題 */
+        .group table button {width: 100%; box-sizing: border-box; white-space: nowrap; }
     
     </style>
 </head>
@@ -62,10 +57,14 @@ Released under the MIT license: http://jsbin.mit-license.org
 
 <div class="window">
     <div class="title-bar">RTK 控制面板 (KY002)</div>
-    
-    <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">
-        連線狀態: <span id="status">正在連線至 MQTTGO...</span>
-    </div>
+    <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            連線狀態: <span id="status">正在連線至 MQTTGO...</span>
+        </div>
+        <div>
+            運行時間: <span id="rtk_uptime" class="val" style="display: inline-block; text-align: right; width: 100px;"></span>
+        </div>
+    </div>    
 
     <div class="group">
         <div class="group-title">NMEA即時狀態(5秒更新)</div>
@@ -94,7 +93,7 @@ Released under the MIT license: http://jsbin.mit-license.org
             <span id="rtk_geo" class="val" style="width: auto; text-align: right;"></span>
         </div>      
         <div class="field" style="flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-            <label style="margin-bottom: 0;">UTC 時間:</label>
+            <label style="margin-bottom: 0;">時間 (UTC+8):</label>
             <span id="rtk_time" class="val" style="width: auto; text-align: right;"></span>
         </div>
     </div>
@@ -140,53 +139,40 @@ Released under the MIT license: http://jsbin.mit-license.org
   
     <div class="group">
         <div class="group-title">NTRIP 伺服器設定</div>
-      
         <div class="field">
             <label>IP / 網址:</label>
-            <input type="text" id="ntrip_ip" value="kynet.asuscomm.com">
+            <input type="text" id="ntrip_ip" value="">
         </div>
-      
         <div class="field">
             <label>連接埠 (Port):</label>
-            <input type="text" id="ntrip_port" value="5000">
+            <input type="text" id="ntrip_port" value="">
         </div>
-      
         <div class="field">
             <label>掛載點 (Mount):</label>
-            <input type="text" id="ntrip_mount" value="base01">
+            <input type="text" id="ntrip_mount" value="">
         </div>
-      
         <div class="field">
             <label>基站名稱:</label>
-            <input type="text" id="base_mount" value="base01">
+            <input type="text" id="base_mount" value="">
         </div> 
       
         <div class="field">
             <label>User:</label>
-            <input type="text" id="ntrip_user" value="admin">
+            <input type="text" id="ntrip_user" value="">
         </div>
-      
         <div class="field">
             <label>Password:</label>
-            <input type="text" id="ntrip_pass" value="12345678">
-        </div>   
+            <input type="text" id="ntrip_pass" value="">
+        </div>       
+    <table width="100%" border="0">
+        <tr>
+            <td width="50%" align="center"><button onclick="loadConfig()">讀取設定</button></td>
+            <td width="50%" align="center"><button onclick="sendConfig()">修改送出</button></td>
+        </tr>
+    </table>
       
-            <table width="100%" border="0">
-            <tr>
-                <td width="50%" align="center"><button onclick="sendConfig()">修改送出</button></td>
-                <td width="50%" align="center"><button onclick="loadConfig()">重新讀取</button></td>
-            </tr>
-            </table>
-      </div>
-  
-      <div class="group">
-        <div class="group-title">自訂內容發送</div>
-        <div class="field">
-            <input type="text" id="Text1" value="">
-        </div>     
-      <button onclick="sendButton1()">送出</button>
-     </div>
-  
+    </div>
+ 
   </div>
 
 <script>
@@ -194,9 +180,9 @@ Released under the MIT license: http://jsbin.mit-license.org
   let geoid = 0;
     // ═══════════════ MQTTGO 伺服器與 Topic 設定 ═══════════════
     const host = 'wss://mqttgo.vip:8084/mqtt'; 
-    const myTopic = '/user/ky23205238/RTK/KY001/cmd'; // 網頁發佈(傳送)給 ESP32 的主題
-    const reportTopic1 = '/user/ky23205238/RTK/KY001/nmea'; // 網頁訂閱(接收) ESP32 狀態的主題
-    const reportTopic2 = '/user/ky23205238/RTK/KY001/log'; // 網頁訂閱(接收) ESP32 狀態的主題
+    const myTopic = '/user/ky23205238/RTK/KY002/cmd'; // 網頁發佈(傳送)給 ESP32 的主題
+    const reportTopic1 = '/user/ky23205238/RTK/KY002/nmea'; // 網頁訂閱(接收) ESP32 狀態的主題
+    const reportTopic2 = '/user/ky23205238/RTK/KY002/log'; // 網頁訂閱(接收) ESP32 狀態的主題
 
     // MQTT 連線參數設定
     const options = {
@@ -219,8 +205,8 @@ Released under the MIT license: http://jsbin.mit-license.org
     client.on('error', (err) => {
         document.getElementById('status').innerText = '連線失敗';
         document.getElementById('status').style.color = 'red';
-    });
-
+    });  
+    
     client.on('message', (topic, message) => {
         const msgString = message.toString();
         
@@ -230,7 +216,7 @@ Released under the MIT license: http://jsbin.mit-license.org
                 const data = JSON.parse(msgString);
                 
                 // 1. 填入定位狀態 (對齊你的 FixType)
-                if (data.FixType) {
+                /*if (data.FixType) {
                     document.getElementById('rtk_sol').innerText = data.FixType;
                     
                     // 根據解算狀態動態變更顏色 (如果內含 "FIX" 或數字 "4" 變綠色)
@@ -263,18 +249,116 @@ Released under the MIT license: http://jsbin.mit-license.org
                 // 5. 填入 ESP32 傳過來的硬體時間 (對齊 UTC)
                 if (data.UTC) {
                     document.getElementById('rtk_time').innerText = data.UTC;
+                }*/
+                if (data.FixType) {
+                    // 1. 強制把資料轉成字串，防範數字型態，並統一轉大寫防範大小寫問題
+                    const fixStr = String(data.FixType).toUpperCase();
+                    const solElement = document.getElementById('rtk_sol');
+                    
+                    solElement.textContent = data.FixType; // 換成你最喜歡的 textContent
+                
+                    // 根據解算狀態動態變更顏色 (FIX 變綠色，FLOAT/其他變藍色，新增不定位 INVALID 變紅色)
+                    if (fixStr.includes("FIX") || fixStr.includes("4")) {
+                        solElement.style.color = "green";   // RTK 定位成功
+                    } else if (fixStr.includes("FLOAT") || fixStr.includes("5") || fixStr.includes("2")) {
+                        solElement.style.color = "blue";    // 浮點解
+                    } else {
+                        solElement.style.color = "red";     // 未定位或無效解
+                    }
                 }
-
+                
+                // 2. 填入十進位經緯度 (改用 textContent)
+                if (data.LatDeg && data.LatDMS) {
+                    document.getElementById('rtk_lat').textContent = `${data.LatDeg} / ${data.LatDMS}`;
+                }
+                if (data.LonDeg && data.LonDMS) {
+                    document.getElementById('rtk_lon').textContent = `${data.LonDeg} / ${data.LonDMS}`;
+                }     
+                
+                if (data.RawLat) {
+                    const latDD = nmeaToDD(data.RawLat).toFixed(8); // 限制十進位小數點後 8 位
+                    const latDMS = nmeaToDMS(data.RawLat);
+                    
+                    document.getElementById('rtk_lat').textContent = `${latDD} / ${latDMS}`;
+                }
+                
+                if (data.RawLon) {
+                    const lonDD = nmeaToDD(data.RawLon).toFixed(8);
+                    const lonDMS = nmeaToDMS(data.RawLon);
+                    
+                    document.getElementById('rtk_lon').textContent = `${lonDD} / ${lonDMS}`;
+                }                
+                            
+                // 3. 【高能注意】海拔高度可能是 0 米！用簡寫會失效，所以必須用這種寫法來防呆：
+                if (data.Ellipsoid !== undefined && data.Ellipsoid !== null) {
+                    document.getElementById('rtk_ell').textContent = data.Ellipsoid + " m";
+                }
+                if (data.Alt !== undefined && data.Alt !== null) {
+                    document.getElementById('rtk_alt').textContent = data.Alt + " m";
+                }
+                if (data.Geo !== undefined && data.Geo !== null) {
+                    document.getElementById('rtk_geo').textContent = data.Geo + " m";
+                    geoid = data.Geo; // 順便幫你把複製錯誤的註解修正了
+                }
+                
+                // 4. 填入 UTC 時間
+                /*if (data.UTC) {
+                    document.getElementById('rtk_time').textContent = data.UTC;
+                }*/
+                if (data.UTC) {
+                    const utcStr = String(data.UTC).trim();
+                    
+                    if (utcStr.length === 6) {
+                        let hh = parseInt(utcStr.substring(0, 2), 10);
+                        const mm = utcStr.substring(2, 4);
+                        const ss = utcStr.substring(4, 6);
+                        
+                        // 轉換為台灣時間 (UTC + 8)
+                        hh = (hh + 8) % 24;
+                        
+                        // 補零確保維持兩位數
+                        const twHH = String(hh).padStart(2, '0');
+                        
+                        // 顯示台灣本地時間
+                        document.getElementById('rtk_time').textContent = `${twHH}:${mm}:${ss}`;
+                    } else {
+                        document.getElementById('rtk_time').textContent = utcStr;
+                    }
+                }               
+                //5. ESP運行時間
+                if (data.Uptime !== undefined && data.Uptime !== null) {
+                    const totalSeconds = Math.floor(data.Uptime);
+                    
+                    // 拆出天、時、分、秒
+                    const days = Math.floor(totalSeconds / 86400); // 1天 = 86400秒
+                    const hours = Math.floor((totalSeconds % 86400) / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                
+                    const h = String(hours).padStart(2, '0');
+                    const m = String(minutes).padStart(2, '0');
+                    const s = String(seconds).padStart(2, '0');
+                
+                    // 如果滿 1 天以上才顯示天數，否則只顯示時間
+                    if (days > 0) {
+                        document.getElementById('rtk_uptime').textContent = `${days}D ${h}:${m}:${s}`;
+                    } else {
+                        document.getElementById('rtk_uptime').textContent = `${h}:${m}:${s}`;
+                    }
+                }               
+                
             } catch (e) {
                 console.warn("非JSON數據，已自動忽略。");
             }
+
+                       
         }
       
         else if (topic === reportTopic2) {
             try {
                 // 將收到的純文字嘗試解析為 JSON 物件
                 const data = JSON.parse(msgString); 
-                                
+                /*                
                 // 4. 填入海拔高程 (對齊 Alt)
                 if (data.host!== undefined) document.getElementById('ntrip_ip').value = data.host;
                 
@@ -293,7 +377,15 @@ Released under the MIT license: http://jsbin.mit-license.org
                 }
                 if (data.base_mount) {
                     document.getElementById('base_mount').value = data.base_mount;
-                }              
+                } 
+                */
+                // 全部統一用簡寫，既乾淨又好讀
+                if (data.host)       document.getElementById('ntrip_ip').value = data.host;
+                if (data.port)       document.getElementById('ntrip_port').value = data.port;
+                if (data.mount)      document.getElementById('ntrip_mount').value = data.mount;
+                if (data.user)       document.getElementById('ntrip_user').value = data.user;
+                if (data.pw)         document.getElementById('ntrip_pass').value = data.pw;
+                if (data.base_mount) document.getElementById('base_mount').value = data.base_mount;                
             } catch (e) {
                 console.warn("非JSON數據，已自動忽略。");
             }
@@ -315,7 +407,7 @@ Released under the MIT license: http://jsbin.mit-license.org
         client.publish(myTopic, "{\"mode\":\"base\"}", { qos: 1 });
     }  
   
-  function sendConfig() {
+/*  function sendConfig() {
         const config = {
             host: document.getElementById('ntrip_ip').value,
             port: parseInt(document.getElementById('ntrip_port').value),
@@ -324,12 +416,30 @@ Released under the MIT license: http://jsbin.mit-license.org
             user: document.getElementById('ntrip_user').value,
             pw: document.getElementById('ntrip_pass').value          
         };
+*/
+function sendConfig() {
+    // 你原本的宣告方式
+    const config = {
+        host: document.getElementById('ntrip_ip').value.trim(), // 建議加上 .trim()
+        port: document.getElementById('ntrip_port').value.trim(), // 先別 parseInt，當字串檢查
+        mount: document.getElementById('ntrip_mount').value.trim(),
+        base_mount: document.getElementById('base_mount').value.trim(),
+        user: document.getElementById('ntrip_user').value.trim(),
+        pw: document.getElementById('ntrip_pass').value.trim()      
+    };
 
-        const jsonString = JSON.stringify(config);
-        
+    // 只要這段「攔截檢查」寫在 publish 之前，就能成功擋下
+    const hasEmptyField = Object.values(config).some(value => value === "");
+    if (hasEmptyField) {
+        alert("所有欄位皆都要填！");
+        return; // 在這裡被擋住，下面的 publish 就讀不到，自然送不出去了
+    }   
+        config.port = parseInt(config.port, 10);    
+        const jsonString = JSON.stringify(config);        
         client.publish(myTopic, jsonString, { qos: 1 });
 
     }
+    
     function loadConfig() {
 
         client.publish(myTopic, "AT+CONFIG?", { qos: 1 });
@@ -366,17 +476,37 @@ Released under the MIT license: http://jsbin.mit-license.org
 
         client.publish(myTopic, "MODE ROVER", { qos: 1 });
     }
-  
-  
-// ═══════════════ 【自訂按鈕：改為直接發送純文字】 ═══════════════
-    function sendButton1() {
-        // 抓取對應輸入框的純文字內容
-        //const inputId = 'custom_val' + num;
-        const rawText = document.getElementById('Text1').value;
 
-        // 直接把這串純文字 Publish 出去，完全不包裝 JSON
-        client.publish(myTopic, rawText, { qos: 1 });
+// 1. 將 NMEA 原始座標轉成十進位度數 (DD.DDDDDD)
+    function nmeaToDD(rawValue) {
+        if (!rawValue || isNaN(rawValue)) return 0;
+        
+        // NMEA 格式為 DDMM.MMMM，所以除以 100 取整數就是「度」
+        const degrees = Math.floor(rawValue / 100);
+        // 扣掉度，剩下的就是「分」
+        const minutes = rawValue - (degrees * 100);
+        
+        // 分除以 60 換算成度，加起來
+        return degrees + (minutes / 60);
     }
+    
+    // 2. 將 NMEA 原始座標轉成度分秒字串 (D°M'S")
+    function nmeaToDMS(rawValue) {
+        if (!rawValue || isNaN(rawValue)) return "";
+    
+        const d = Math.floor(rawValue / 100);
+        const rawMinutes = rawValue - (d * 100);
+        const m = Math.floor(rawMinutes);
+        
+        // 算秒數，並用 .toFixed(4) 限制小數點後 4 位（對齊你 C++ 的 %.4f）
+        const s = ((rawMinutes - m) * 60).toFixed(4);
+        
+        // 使用 padStart 幫分鐘補零（例如 5 分變成 05 分）
+        const mStr = String(m).padStart(2, '0');
+    
+        // 網頁端可以直接打出 ° 這個符號，不需要寫 \xC2\xB0 了！
+        return `${d}°${mStr}'${s}"`;
+    }      
 
 </script>
 </body>
