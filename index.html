@@ -16,16 +16,21 @@ Released under the MIT license: http://jsbin.mit-license.org
     <title>康鷹空間資訊 RTK 控制面板</title>
     <script>
         function checkPassword() {
-            var mypwd = "23205238";
-            var inputpwd = prompt("請輸入密碼：");
-            // 只要輸入的密碼不等於正確密碼，就一直執行迴圈
-            while (inputpwd !== mypwd) {        
-                alert("密碼錯誤，請重新輸入！");
-                // 重新彈出輸入框，並將新輸入的值存入 password 變數，繼續下一次比對
-                inputpwd = prompt("請輸入密碼：");
+            var correctPassword = "23205238"; // 你的正確密碼        
+            while (true) {
+                var password = prompt("請輸入密碼：");        
+                // 1. 檢查是否答對了：答對就立刻打破(break)迴圈，放行！
+                if (password === correctPassword) {
+                    break; //
+                }        
+                // 2. 如果沒答對，檢查是不是「取消」或「空白」
+                if (password === null || password === "") {
+                    continue; //重頭開始
+                }
+                alert("密碼錯誤！");
             }
-            return;
         }
+
         checkPassword();
     </script>    
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
