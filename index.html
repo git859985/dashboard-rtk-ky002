@@ -15,11 +15,18 @@ Released under the MIT license: http://jsbin.mit-license.org
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>康鷹空間資訊 RTK 控制面板</title>
     <script>
-          var password = prompt("請輸入存取密碼：");
-          if (password !== "23205238") { // 這裡設定你的密碼
-              alert("密碼錯誤，拒絕存取！");
-              window.location.href = "about:blank"; // 密碼錯了就導向空白頁
-          }
+        function checkPassword() {
+            var mypwd = "23205238";
+            var inputpwd = prompt("請輸入密碼：");
+            // 只要輸入的密碼不等於正確密碼，就一直執行迴圈
+            while (inputpwd !== mypwd) {        
+                alert("密碼錯誤，請重新輸入！");
+                // 重新彈出輸入框，並將新輸入的值存入 password 變數，繼續下一次比對
+                inputpwd = prompt("請輸入密碼：");
+            }
+            return;
+        }
+        checkPassword();
     </script>    
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
