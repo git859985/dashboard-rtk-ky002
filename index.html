@@ -285,6 +285,9 @@ Released under the MIT license: http://jsbin.mit-license.org
                     } else {
                         solElement.style.color = "red";     // 未定位或無效解
                     }
+                } else {
+                    solElement.textContent = "--";
+                    solElement.style.color = "red";
                 }
                 
                 // 2. 填入十進位經緯度 (改用 textContent)
@@ -295,7 +298,7 @@ Released under the MIT license: http://jsbin.mit-license.org
                     document.getElementById('rtk_lon').textContent = `${data.LonDeg} / ${data.LonDMS}`;
                 }*/
                 
-                if (data.RawLat) {
+                if (data.RawLat && data.RawLat !== "") {
                     latDD = nmeaToDD(data.RawLat).toFixed(8); 
                     latDMS = nmeaToDMS(data.RawLat);
                     document.getElementById('rtk_lat').textContent = latDD + " / " + latDMS;              
@@ -303,7 +306,7 @@ Released under the MIT license: http://jsbin.mit-license.org
                     document.getElementById('rtk_lat').textContent = "--";
                 }
                 
-                if (data.RawLon) {
+                if (data.RawLon && data.RawLon !== "") {
                     lonDD = nmeaToDD(data.RawLon).toFixed(8); 
                     lonDMS = nmeaToDMS(data.RawLon);
                     document.getElementById('rtk_lon').textContent = lonDD + " / " + lonDMS;              
@@ -312,17 +315,26 @@ Released under the MIT license: http://jsbin.mit-license.org
                 }           
                           
                 // 3. 【高能注意】海拔高度可能是 0 米！用簡寫會失效，所以必須用這種寫法來防呆：
-                if (data.Ellipsoid !== undefined && data.Ellipsoid !== null) {
+                //if (data.Ellipsoid !== undefined && data.Ellipsoid !== null) {
+                if (data.Ellipsoid && data.Ellipsoid !== "") {
                     document.getElementById('rtk_ell').textContent = data.Ellipsoid + " m";
                     ellipsoid = data.Ellipsoid;
-                }
-                if (data.Alt !== undefined && data.Alt !== null) {
+                } else {
+                    document.getElementById('rtk_ell').textContent = "--";
+                } 
+                //if (data.Alt !== undefined && data.Alt !== null) {
+                if (data.Alt && data.Alt !== "") {
                     document.getElementById('rtk_alt').textContent = data.Alt + " m";
-                }
-                if (data.Geo !== undefined && data.Geo !== null) {
+                } else {
+                    document.getElementById('rtk_alt').textContent = "--";
+                } 
+                //if (data.Geo !== undefined && data.Geo !== null) {
+                if (data.Geo && data.Geo !== "")
                     document.getElementById('rtk_geo').textContent = data.Geo + " m";
                     geoid = data.Geo; // 順便幫你把複製錯誤的註解修正了
-                }
+                } else {
+                    document.getElementById('rtk_geo').textContent = "--";
+                } 
                 
                 // 4. 填入 UTC 時間
                 if (data.UTC) {
