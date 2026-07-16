@@ -132,22 +132,29 @@ Released under the MIT license: http://jsbin.mit-license.org
   
   
     <div class="group">
-        <div class="group-title">基站座標</div>
-        <div class="field">
-            <label>緯度 (Latitude):</label>
-            <input type="text" id="base_lat" value="">
-        </div>
-        <div class="field">
-            <label>經度 (Longitude):</label>
-            <input type="text" id="base_lon" value="">
-        </div>
-        <div class="field">
-            <label>高度 (Height):</label>
-            <input type="text" id="base_ell" value="">
-        </div>
+      <div class="group-title">基站座標</div>
+      <div class="field">
+        <label>緯度 (Latitude):</label>
+        <input type="text" id="base_lat" value="">
+      </div>
+      
+      <div class="field">
+        <label>經度 (Longitude):</label>
+        <input type="text" id="base_lon" value="">
+      </div>
+      
+      <div class="field">
+        <label>高度 (Height):</label>
+        <input type="text" id="base_ell" value="">
+      </div>
      
-      <button onclick="sendBase()">設為基地站</button>
-     </div>
+      <table width="100%" border="0">
+        <tr>
+          <td width="30%" align="center"><button onclick="loadBase()">讀取座標</button></td>
+          <td width="30%" align="center"><button onclick="sendBase()">設為基站</button></td>
+        </tr>
+      </table> 
+    </div>
   
     <div class="group">
         <div class="group-title"></div>
@@ -201,7 +208,12 @@ Released under the MIT license: http://jsbin.mit-license.org
   </div>
 <script>
   
-  let geoid = 0;
+    var latDD = 0.0;
+    var latDMS ="";
+    var lonDD = 0.0;
+    var lonDMS = "";
+    var ellipsoid = 0.0;
+    var geoid = 0.0;
     // ═══════════════ MQTTGO 伺服器與 Topic 設定 ═══════════════
     const host = 'wss://mqttgo.vip:8084/mqtt'; 
     const myTopic = '/user/ky23205238/RTK/KY002/cmd'; // 網頁發佈(傳送)給 ESP32 的主題
@@ -265,15 +277,15 @@ Released under the MIT license: http://jsbin.mit-license.org
                 }*/
                 
                 if (data.RawLat) {
-                    const latDD = nmeaToDD(data.RawLat).toFixed(8); // 限制十進位小數點後 8 位
-                    const latDMS = nmeaToDMS(data.RawLat);
+                    latDD = nmeaToDD(data.RawLat).toFixed(8); // 限制十進位小數點後 8 位
+                    latDMS = nmeaToDMS(data.RawLat);
                     
                     document.getElementById('rtk_lat').textContent = `${latDD} / ${latDMS}`;
                 }
                 
                 if (data.RawLon) {
-                    const lonDD = nmeaToDD(data.RawLon).toFixed(8);
-                    const lonDMS = nmeaToDMS(data.RawLon);
+                    lonDD = nmeaToDD(data.RawLon).toFixed(8);
+                    lonDMS = nmeaToDMS(data.RawLon);
                     
                     document.getElementById('rtk_lon').textContent = `${lonDD} / ${lonDMS}`;
                 }                
@@ -281,6 +293,7 @@ Released under the MIT license: http://jsbin.mit-license.org
                 // 3. 【高能注意】海拔高度可能是 0 米！用簡寫會失效，所以必須用這種寫法來防呆：
                 if (data.Ellipsoid !== undefined && data.Ellipsoid !== null) {
                     document.getElementById('rtk_ell').textContent = data.Ellipsoid + " m";
+                    ellipsoid = data.Ellipsoid;
                 }
                 if (data.Alt !== undefined && data.Alt !== null) {
                     document.getElementById('rtk_alt').textContent = data.Alt + " m";
@@ -406,13 +419,16 @@ function sendConfig() {
     }
     
     function loadConfig() {
-
         client.publish(myTopic, "AT+CONFIG?", { qos: 1 });
     }
 
+    function loadBase() {
+        document.getElementById('base_lat').value = latDD;
+        document.getElementById('base_lon').value = lonDD;
+        document.getElementById('base_ell').value = ellipsoid;
+    }    
+
     function sendBase() {
-
-
     // 1. 先把輸入框的原始文字抓出來（先不急著轉數字，不然一轉成數字，空的就會變 NaN）
         const raw_lat = document.getElementById('base_lat').value.trim();
         const raw_lon = document.getElementById('base_lon').value.trim();
@@ -421,7 +437,6 @@ function sendConfig() {
         let target_lat = "";
         let target_lon = "";
         let target_alt = "";
-
 
         if (raw_lat !== "" && raw_lon !== "" && raw_ell !== "") {      
             target_lat = raw_lat;
