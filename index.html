@@ -213,7 +213,7 @@ Released under the MIT license: http://jsbin.mit-license.org
      </div>    
   </div>
 <script>
-    var workmode = "";
+    var workmode = "idle";
     var latDD = 0.0;
     var latDMS ="";
     var lonDD = 0.0;
@@ -259,8 +259,8 @@ Released under the MIT license: http://jsbin.mit-license.org
 
 
                 
-                if (data.status) {
-                    workmode = data.status;
+                if (data.Status) {
+                    workmode = data.Status;
                     // 1. 直接用 id 移除選中樣式（乾淨、不用 var 宣告）
                     btn_idle.classList.remove("selected");
                     btn_rover.classList.remove("selected");
