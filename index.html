@@ -404,12 +404,7 @@ Released under the MIT license: http://jsbin.mit-license.org
     });
  
     function send_idle() {
-        if (workmode !== "idle") {
-            alert("請先離線再操作！");
-        }
-        else {
-            client.publish(myTopic, "{\"mode\":\"idle\"}", { qos: 1 });
-        }         
+            client.publish(myTopic, "{\"mode\":\"idle\"}", { qos: 1 });      
     }
     
     function send_rover() {     
