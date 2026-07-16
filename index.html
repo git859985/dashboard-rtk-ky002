@@ -270,7 +270,7 @@ Released under the MIT license: http://jsbin.mit-license.org
                     else if (workmode === "base") btn_base.classList.add("selected");
                 }
 
-                if (data.FixType) {
+                if (data.FixType && data.FixType !== "") {
                     // 1. 強制把資料轉成字串，防範數字型態，並統一轉大寫防範大小寫問題
                     const fixStr = String(data.FixType).toUpperCase();
                     const solElement = document.getElementById('rtk_sol');
@@ -329,7 +329,7 @@ Released under the MIT license: http://jsbin.mit-license.org
                     document.getElementById('rtk_alt').textContent = "--";
                 } 
                 //if (data.Geo !== undefined && data.Geo !== null) {
-                if (data.Geo && data.Geo !== "")
+                if (data.Geo && data.Geo !== "") {
                     document.getElementById('rtk_geo').textContent = data.Geo + " m";
                     geoid = data.Geo; // 順便幫你把複製錯誤的註解修正了
                 } else {
