@@ -298,7 +298,7 @@ Released under the MIT license: http://jsbin.mit-license.org
                     document.getElementById('rtk_lon').textContent = `${data.LonDeg} / ${data.LonDMS}`;
                 }*/
                 
-                if (data.RawLat && data.RawLat !== "") {
+                if (data.RawLat) {
                     latDD = nmeaToDD(data.RawLat).toFixed(8); 
                     latDMS = nmeaToDMS(data.RawLat);
                     document.getElementById('rtk_lat').textContent = latDD + " / " + latDMS;              
@@ -306,7 +306,7 @@ Released under the MIT license: http://jsbin.mit-license.org
                     document.getElementById('rtk_lat').textContent = "--";
                 }
                 
-                if (data.RawLon && data.RawLon !== "") {
+                if (data.RawLon) {
                     lonDD = nmeaToDD(data.RawLon).toFixed(8); 
                     lonDMS = nmeaToDMS(data.RawLon);
                     document.getElementById('rtk_lon').textContent = lonDD + " / " + lonDMS;              
