@@ -296,19 +296,21 @@ Released under the MIT license: http://jsbin.mit-license.org
                 }*/
                 
                 if (data.RawLat) {
-                    latDD = nmeaToDD(data.RawLat).toFixed(8); // 限制十進位小數點後 8 位
+                    latDD = nmeaToDD(data.RawLat).toFixed(8); 
                     latDMS = nmeaToDMS(data.RawLat);
-                    
-                    document.getElementById('rtk_lat').textContent = `${latDD} / ${latDMS}`;
+                    document.getElementById('rtk_lat').textContent = latDD + " / " + latDMS;              
+                } else {
+                    document.getElementById('rtk_lat').textContent = "--";
                 }
                 
                 if (data.RawLon) {
-                    lonDD = nmeaToDD(data.RawLon).toFixed(8);
+                    lonDD = nmeaToDD(data.RawLon).toFixed(8); 
                     lonDMS = nmeaToDMS(data.RawLon);
-                    
-                    document.getElementById('rtk_lon').textContent = `${lonDD} / ${lonDMS}`;
-                }                
-                            
+                    document.getElementById('rtk_lon').textContent = lonDD + " / " + lonDMS;              
+                } else {
+                    document.getElementById('rtk_lon').textContent = "--";
+                }           
+                          
                 // 3. 【高能注意】海拔高度可能是 0 米！用簡寫會失效，所以必須用這種寫法來防呆：
                 if (data.Ellipsoid !== undefined && data.Ellipsoid !== null) {
                     document.getElementById('rtk_ell').textContent = data.Ellipsoid + " m";
