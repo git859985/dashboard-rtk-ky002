@@ -315,8 +315,8 @@ Released under the MIT license: http://jsbin.mit-license.org
                 }           
                           
                 // 3. 【高能注意】海拔高度可能是 0 米！用簡寫會失效，所以必須用這種寫法來防呆：
-                //if (data.Ellipsoid !== undefined && data.Ellipsoid !== null) {
-                if (data.Ellipsoid && data.Ellipsoid !== "") {
+                if (data.Ellipsoid !== undefined && data.Ellipsoid !== null) {
+                //if (data.Ellipsoid && data.Ellipsoid !== "") {
                     document.getElementById('rtk_ell').textContent = data.Ellipsoid + " m";
                     ellipsoid = data.Ellipsoid;
                 } else {
